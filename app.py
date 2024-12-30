@@ -10,6 +10,7 @@ class TerminalApp(QMainWindow):
         self.browser.setUrl(QUrl.fromLocalFile("D:\Files But Not Corrupt\StoreClicker\index.html"))
         self.setCentralWidget(self.browser)
         self.setWindowTitle("Interactive Terminal")
+        self.setWindowState(self.windowState() | Qt.WindowFullScreen)
 
         self.show()
 
