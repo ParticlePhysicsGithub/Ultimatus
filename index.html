@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ultimatus</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: "Roboto", sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        background: linear-gradient(135deg, #e8e8e8, #d1ccc0);
+        color: #333;
+      }
+
+      .gamecontainer {
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        text-align: center;
+        width: 90%;
+        max-width: 450px;
+      }
+
+      .countercontainer {
+        margin-bottom: 20px;
+      }
+
+      .countermajor {
+        font-size: 40px;
+        font-weight: bold;
+        margin-bottom: 10px;
+        color: #5a4b40;
+        text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
+      }
+
+      .counterminor {
+        font-size: 18px;
+        font-weight: bolder;
+        color: #555;
+        margin-bottom: 5px;
+        text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.2);
+      }
+
+      .shopcontainer {
+        text-align: left;
+        margin-top: 20px;
+      }
+
+      .counterhedus {
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 15px;
+        color: #5a4b40;
+        text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.4);
+      }
+
+      .input-container {
+        margin: 15px 0;
+        font-size: 18px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      input[type="number"] {
+        width: 80px;
+        padding: 8px;
+        font-size: 16px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        outline: none;
+        text-align: center;
+        background: #f7f7f7;
+        color: #333;
+        font-family: "Roboto", sans-serif;
+      }
+
+      .button {
+        display: inline-block;
+        background: #555;
+        color: white;
+        padding: 12px 18px;
+        margin: 10px;
+        font-size: 16px;
+        font-weight: 500;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        transition: background 0.3s ease, transform 0.2s ease;
+      }
+
+      .button:hover {
+        background: #777;
+        transform: scale(1.05);
+      }
+
+      /* Default disabled state */
+      .button:disabled {
+        background: #d4d4d4; /* Disabled look */
+        transform: scale(1); /* Default scale for disabled */
+        cursor: not-allowed; /* Cursor for disabled */
+      }
+
+      /* .unaffordable class styles only apply when the element is unaffordable */
+      .button.unaffordable {
+        background: #745d5d; /* Unaffordable look */
+        transform: scale(1); /* Scale for unaffordable look */
+        cursor: not-allowed; /* Cursor for unaffordable */
+      }
+
+      /* Ensure the unaffordable styles only apply when both disabled and unaffordable */
+      .button.unaffordable:disabled {
+        background: #745d5d; /* Unaffordable look when disabled */
+        transform: scale(1); /* Apply this scale */
+        cursor: not-allowed; /* Cursor for unaffordable */
+      }
+
+      .button:active {
+        background: #444;
+        transform: scale(0.95);
+      }
+
+      .buttonmajor {
+        background: #5a4b40;
+        color: white;
+        padding: 12px 18px;
+        margin: 10px;
+        font-size: 16px;
+        font-weight: 500;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        transition: background 0.3s ease, transform 0.2s ease;
+      }
+
+      .buttonmajor:hover {
+        background: #7c6b5e;
+        transform: scale(1.05);
+      }
+
+      .buttonmajor:active {
+        background: #3f342e;
+        transform: scale(0.95);
+      }
+
+      @media (max-width: 600px) {
+        .gamecontainer {
+          width: 95%;
+        }
+
+        .button {
+          font-size: 14px;
+        }
+        .buttonmajor {
+          font-size: 14px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="gamecontainer">
+      <div class="countercontainer">
+        <div class="countermajor">$<span id="cash">0</span></div>
+        <div class="counterminor">
+          Income: $<span id="income">1</span>/s ($<span id="income_hrs"
+            >3600</span
+          >/hr)
+        </div>
+        <div class="counterminor">
+          Stores (MAX 100): <span id="stores">1</span>
+        </div>
+        <div class="counterminor">
+          Employees (MAX 2500): <span id="employees">1</span>
+        </div>
+        <div class="counterminor">Companies: <span id="companies">1</span></div>
+        <div class="counterminor">Multiplier: x<span id="multi">1</span></div>
+        <div class="counterminor">
+          Inflation Rate: x<span id="expo">1.1</span>
+        </div>
+      </div>
+      <div class="shopcontainer">
+        <div class="counterhedus">Upgrades:</div>
+        <div class="input-container">
+          <label for="upgrade-quantity">Quantity:</label>
+          <input type="number" id="upgrade-quantity" value="1" min="1" />
+        </div>
+        <button class="button" id="income-upgrade--employee">
+          Hire an Employee (+<span id="employeeIncome">1</span> Income) ($<span
+            id="employeeCost"
+            >50</span
+          >)
+        </button>
+        <button class="button" id="income-upgrade--location">
+          Build a new Store (x<span id="storeIncome">1.25</span> Current Income)
+          ($<span id="locationCost">250</span>)
+        </button>
+        <button class="button" id="income-upgrade--company">
+          Start a new Company (-0.1 Inflation Rate if over 1) ($<span
+            id="companyCost"
+            >5000</span
+          >)
+        </button>
+        <button class="buttonmajor" id="rebirth-upg">
+          Rebirth ($<span id="rebirthCost">50000</span>)
+        </button>
+      </div>
+    </div>
+    <script>
+      let cash = 0;
+      let income = 1;
+      let employees = 1;
+      let stores = 1;
+      let companies = 1;
+      let discount = 100; // No discount initially
+      let expoSet = 1.1;
+      let multi = 1;
+      let storeMax = 100;
+      let employMax = 2500;
+
+      let employeeCost = 50;
+      let locationCost = 250;
+      let companyCost = 5000;
+      let rebirthCost = 50000;
+
+      const cashDisplay = document.getElementById("cash");
+      const incomeDisplay = document.getElementById("income");
+      const incomeHOURDisplay = document.getElementById("income_hrs");
+      const employeeDisplay = document.getElementById("employees");
+      const storesDisplay = document.getElementById("stores");
+      const companiesDisplay = document.getElementById("companies");
+      const incomeUpgradeEmployee = document.getElementById(
+        "income-upgrade--employee"
+      );
+      const incomeUpgradeLocation = document.getElementById(
+        "income-upgrade--location"
+      );
+      const incomeUpgradeCompany = document.getElementById(
+        "income-upgrade--company"
+      );
+      const RebirthAction = document.getElementById("rebirth-upg");
+      const upgradeQuantity = document.getElementById("upgrade-quantity");
+      const EmployeeCostDisplay = document.getElementById("employeeCost");
+      const StoreCostDisplay = document.getElementById("locationCost");
+      const CompanyCostDisplay = document.getElementById("companyCost");
+      const RebirthCostDisplay = document.getElementById("rebirthCost");
+      const MultiDisplay = document.getElementById("multi");
+      const ExpoDisplay = document.getElementById("expo");
+      const EmployeeIncomeDisplay = document.getElementById("employeeIncome");
+      const StoreIncomeDisplay = document.getElementById("storeIncome");
+
+      function updateButtonStates() {
+        // Update button 1
+        if (cash < employeeCost) {
+          incomeUpgradeEmployee.classList.add("unaffordable");
+          incomeUpgradeEmployee.disabled = true;
+        } else {
+          incomeUpgradeEmployee.classList.remove("unaffordable");
+          incomeUpgradeEmployee.disabled = false;
+        }
+
+        // Update button 2
+        if (cash < companyCost) {
+          incomeUpgradeCompany.classList.add("unaffordable");
+          incomeUpgradeCompany.disabled = true;
+        } else {
+          incomeUpgradeCompany.classList.remove("unaffordable");
+          incomeUpgradeCompany.disabled = false;
+        }
+
+        // Update button 3
+        if (cash < locationCost) {
+          incomeUpgradeLocation.classList.add("unaffordable");
+          incomeUpgradeLocation.disabled = true;
+        } else {
+          incomeUpgradeLocation.classList.remove("unaffordable");
+          incomeUpgradeLocation.disabled = false;
+        }
+      }
+      function updateDisplay() {
+        cashDisplay.textContent = cash.toFixed(2);
+        incomeDisplay.textContent = (income * multi).toFixed(2);
+        incomeHOURDisplay.textContent = (income * multi * 3600).toFixed(2);
+        employeeDisplay.textContent = employees;
+        storesDisplay.textContent = stores;
+        companiesDisplay.textContent = companies;
+        EmployeeCostDisplay.textContent = employeeCost.toFixed(2);
+        StoreCostDisplay.textContent = locationCost.toFixed(2);
+        CompanyCostDisplay.textContent = companyCost.toFixed(2);
+        RebirthCostDisplay.textContent = rebirthCost.toFixed(2);
+        MultiDisplay.textContent = multi.toFixed(2);
+        ExpoDisplay.textContent = expoSet.toFixed(2);
+        EmployeeIncomeDisplay.textContent = (1 * multi).toFixed(2);
+        StoreIncomeDisplay.textContent = (1.25 * multi).toFixed(2);
+
+        incomeUpgradeEmployee.disabled = employees >= employMax;
+        incomeUpgradeLocation.disabled = stores >= storeMax;
+      }
+
+      incomeUpgradeEmployee.addEventListener("click", () => {
+        const quantity = parseInt(upgradeQuantity.value, 10) || 1;
+        const cost = employeeCost * quantity;
+
+        if (cash >= cost) {
+          if (employees < employMax) {
+            cash -= cost;
+            income += quantity * 1;
+            employees += quantity;
+            employeeCost *= Math.pow(expoSet, quantity);
+            updateDisplay();
+          }
+        }
+      });
+
+      incomeUpgradeCompany.addEventListener("click", () => {
+        const quantity = parseInt(upgradeQuantity.value, 10) || 1;
+        const cost = companyCost * quantity;
+
+        if (cash >= cost) {
+          if (expoSet > 1) {
+            cash -= cost;
+            companies += quantity;
+
+            expoSet -= 0.1;
+
+            updateDisplay();
+          }
+        }
+      });
+
+      incomeUpgradeLocation.addEventListener("click", () => {
+        const quantity = parseInt(upgradeQuantity.value, 10) || 1;
+        const cost = locationCost * quantity;
+
+        if (cash >= cost) {
+          if (stores < storeMax) {
+            cash -= cost;
+            income *= Math.pow(1.25 * multi, quantity);
+            stores += quantity;
+            locationCost *= Math.pow(expoSet, quantity);
+            updateDisplay();
+          }
+        }
+      });
+
+      RebirthAction.addEventListener("click", () => {
+        if (cash >= rebirthCost) {
+          cash = 0;
+          income = 1;
+          employees = 1;
+          stores = 1;
+          companies = 1;
+          discount = 100;
+          employeeCost = 50;
+          locationCost = 250;
+          companyCost = 5000;
+          rebirthCost *= 1.5;
+          expoSet += 0.5;
+          multi += 1;
+
+          updateDisplay();
+        }
+      });
+
+      setInterval(() => {
+        cash += (income * multi) / 100; // Add CPS every 100ms
+        updateDisplay();
+        updateButtonStates();
+      }, 10);
+    </script>
+  </body>
+</html>
