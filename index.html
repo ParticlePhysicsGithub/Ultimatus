@@ -26,6 +26,7 @@
         text-align: center;
         width: 90%;
         max-width: 450px;
+        margin-bottom: 20px;
       }
 
       .countercontainer {
@@ -71,6 +72,19 @@
 
       input[type="number"] {
         width: 80px;
+        padding: 8px;
+        font-size: 16px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        outline: none;
+        text-align: center;
+        background: #f7f7f7;
+        color: #333;
+        font-family: "Roboto", sans-serif;
+      }
+
+      input[type="text"] {
+        width: 200px;
         padding: 8px;
         font-size: 16px;
         border: 1px solid #ddd;
@@ -187,6 +201,8 @@
           Inflation Rate: x<span id="expo">1.1</span>
         </div>
       </div>
+    </div>
+    <div class="gamecontainer">
       <div class="shopcontainer">
         <div class="counterhedus">Upgrades:</div>
         <div class="input-container">
@@ -212,6 +228,15 @@
         <button class="buttonmajor" id="rebirth-upg">
           Rebirth ($<span id="rebirthCost">50000</span>)
         </button>
+      </div>
+    </div>
+    <div class="gamecontainer">
+      <div class="counterhedus">Settings:</div>
+      <div>
+        <button class="button" id="save-btn">Save Game</button>
+
+        <button class="button" id="load-btn">Load Game</button>
+        <input type="text" id="save-code-input" placeholder="Enter save code" />
       </div>
     </div>
     <script>
@@ -256,6 +281,7 @@
       const ExpoDisplay = document.getElementById("expo");
       const EmployeeIncomeDisplay = document.getElementById("employeeIncome");
       const StoreIncomeDisplay = document.getElementById("storeIncome");
+      const saveCodeInput = document.getElementById("save-code");
 
       function updateButtonStates() {
         // Update button 1
@@ -285,6 +311,7 @@
           incomeUpgradeLocation.disabled = false;
         }
       }
+
       function updateDisplay() {
         cashDisplay.textContent = cash.toFixed(2);
         incomeDisplay.textContent = (income * multi).toFixed(2);
@@ -298,82 +325,134 @@
         RebirthCostDisplay.textContent = rebirthCost.toFixed(2);
         MultiDisplay.textContent = multi.toFixed(2);
         ExpoDisplay.textContent = expoSet.toFixed(2);
-        EmployeeIncomeDisplay.textContent = (1 * multi).toFixed(2);
-        StoreIncomeDisplay.textContent = (1.25 * multi).toFixed(2);
+        EmployeeIncomeDisplay.textContent = (income * multi).toFixed(2);
+        StoreIncomeDisplay.textContent = (income * multi * 1.25).toFixed(2);
 
-        incomeUpgradeEmployee.disabled = employees >= employMax;
-        incomeUpgradeLocation.disabled = stores >= storeMax;
+        updateButtonStates();
       }
 
       incomeUpgradeEmployee.addEventListener("click", () => {
-        const quantity = parseInt(upgradeQuantity.value, 10) || 1;
-        const cost = employeeCost * quantity;
-
-        if (cash >= cost) {
-          if (employees < employMax) {
-            cash -= cost;
-            income += quantity * 1;
-            employees += quantity;
-            employeeCost *= Math.pow(expoSet, quantity);
-            updateDisplay();
-          }
-        }
-      });
-
-      incomeUpgradeCompany.addEventListener("click", () => {
-        const quantity = parseInt(upgradeQuantity.value, 10) || 1;
-        const cost = companyCost * quantity;
-
-        if (cash >= cost) {
-          if (expoSet > 1) {
-            cash -= cost;
-            companies += quantity;
-
-            expoSet -= 0.1;
-
-            updateDisplay();
-          }
+        if (cash >= employeeCost) {
+          cash -= employeeCost;
+          income += 1;
+          employees += 1;
+          employeeCost = Math.floor(employeeCost * 1.5);
+          updateDisplay();
         }
       });
 
       incomeUpgradeLocation.addEventListener("click", () => {
-        const quantity = parseInt(upgradeQuantity.value, 10) || 1;
-        const cost = locationCost * quantity;
+        if (cash >= locationCost) {
+          cash -= locationCost;
+          stores += 1;
+          locationCost = Math.floor(locationCost * 1.5);
+          updateDisplay();
+        }
+      });
 
-        if (cash >= cost) {
-          if (stores < storeMax) {
-            cash -= cost;
-            income *= Math.pow(1.25 * multi, quantity);
-            stores += quantity;
-            locationCost *= Math.pow(expoSet, quantity);
-            updateDisplay();
-          }
+      incomeUpgradeCompany.addEventListener("click", () => {
+        if (cash >= companyCost) {
+          cash -= companyCost;
+          companies += 1;
+          discount = expoSet;
+          companyCost = Math.floor(companyCost * 1.5);
+          updateDisplay();
         }
       });
 
       RebirthAction.addEventListener("click", () => {
         if (cash >= rebirthCost) {
-          cash = 0;
+          cash -= rebirthCost;
           income = 1;
           employees = 1;
           stores = 1;
           companies = 1;
-          discount = 100;
+          multi = 1;
+          expoSet = 1.1;
           employeeCost = 50;
           locationCost = 250;
           companyCost = 5000;
-          rebirthCost *= 1.5;
-          expoSet += 0.5;
-          multi += 1;
-
+          rebirthCost = 50000;
           updateDisplay();
         }
       });
 
+      document.getElementById("save-btn").addEventListener("click", () => {
+        const gameState = {
+          cash,
+          income,
+          employees,
+          stores,
+          companies,
+          multi,
+          expoSet,
+          employeeCost,
+          locationCost,
+          companyCost,
+          rebirthCost,
+        };
+
+        // Obfuscated version of JSON.stringify with symbols and substitutions
+        const saveCode = JSON.stringify(gameState)
+          .replace(/"/g, "#")
+          .replace(/:/g, "&")
+          .replace(/,/g, "%")
+          .replace(/{/g, "(")
+          .replace(/}/g, ")")
+          .replace(/\[/g, "{")
+          .replace(/\]/g, "}");
+
+        // Copy save code to clipboard
+        navigator.clipboard.writeText(saveCode).then(() => {
+          alert("Game Saved! The save code has been copied to your clipboard.");
+        });
+      });
+
+      document.getElementById("load-btn").addEventListener("click", () => {
+        const saveCodeInput = document
+          .getElementById("save-code-input")
+          .value.trim();
+
+        if (saveCodeInput) {
+          try {
+            const gameState = JSON.parse(
+              saveCodeInput
+                .replace(/#/g, '"')
+                .replace(/&/g, ":")
+                .replace(/%/g, ",")
+                .replace(/\(/g, "{")
+                .replace(/\)/g, "}")
+            ); // Decode obfuscated save code
+
+            cash = gameState.cash;
+            income = gameState.income;
+            employees = gameState.employees;
+            stores = gameState.stores;
+            companies = gameState.companies;
+            multi = gameState.multi;
+            expoSet = gameState.expoSet;
+            employeeCost = gameState.employeeCost;
+            locationCost = gameState.locationCost;
+            companyCost = gameState.companyCost;
+            rebirthCost = gameState.rebirthCost;
+
+            updateDisplay(); // Update UI
+            alert("Game Loaded!");
+          } catch (e) {
+            alert("Invalid Save Code. Please try again.");
+          }
+        } else {
+          alert("Please enter a valid save code.");
+        }
+      });
+
+      updateDisplay();
+      updateButtonStates();
+
+      // Update income and cash every second
       setInterval(() => {
-        cash += (income * multi) / 100; // Add CPS every 100ms
+        cash += (income * multi) / 100;
         updateDisplay();
-        updateButtonStates();
       }, 10);
     </script>
   </body>
