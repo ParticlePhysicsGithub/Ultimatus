@@ -4,16 +4,11 @@ A clicker game that can be run in your browser (ex. Live Server on VSC, file ind
 
 ## Planned Ideas
 
->-~~_Control of money update time_~~   ___(done)___
->
->-_Reset button_
->
->-_Rebirth Currency_
->
->-_Background Vibrancy_
->
->>   -_Color Picker_
->>  
->>    -_Defaults?_
->> 
->>   -_Lava Lamp Mode_
+-~~_Control of money update time_~~   ___(done)___
+
+-_Reset button_
+
+-_Rebirth Currency_
+
+-_Background Vibrancy_
+
