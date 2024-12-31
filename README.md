@@ -12,3 +12,7 @@ A clicker game that can be run in your browser (ex. Live Server on VSC, file ind
 
 -_Background Vibrancy_
 
+-_Overclocking (Overtime)_
+
+-_Marketing (Free Employees)_
+
