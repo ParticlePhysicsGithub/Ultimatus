@@ -14,7 +14,7 @@
         align-items: center;
         justify-content: center;
         height: 100vh;
-        background: linear-gradient(135deg, #e8e8e8, #d1ccc0);
+        background: linear-gradient(135deg, #868686, #d1ccc0);
         color: #333;
       }
 
@@ -27,6 +27,31 @@
         width: 90%;
         max-width: 450px;
         margin-bottom: 20px;
+      }
+
+      .settingcontainer {
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        text-align: center;
+        width: 90%;
+        max-width: 450px;
+        margin-bottom: 20px;
+        margin-right: 20px;
+        position: fixed;
+        right: 0;
+        bottom: 0;
+      }
+      .verstext {
+        margin-bottom: 20px;
+        margin-left: 20px;
+        position: fixed;
+        left: 0;
+        bottom: 0;
+        color: #333;
+        font-size: 24px;
+        font-weight: 1000;
       }
 
       .countercontainer {
@@ -63,7 +88,7 @@
       }
 
       .input-container {
-        margin: 15px 0;
+        margin: 15px;
         font-size: 18px;
         display: flex;
         align-items: center;
@@ -114,6 +139,25 @@
       .button:hover {
         background: #777;
         transform: scale(1.05);
+      }
+
+      .settingsave {
+        margin-left: 10px;
+      }
+
+      .tickselect {
+        margin-left: 10px;
+        margin-top: 10px;
+        width: 100px;
+        padding: 8px;
+        font-size: 16px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        outline: none;
+        text-align: center;
+        background: #f7f7f7;
+        color: #333;
+        font-family: "Roboto", sans-serif;
       }
 
       /* Default disabled state */
@@ -230,14 +274,34 @@
         </button>
       </div>
     </div>
-    <div class="gamecontainer">
-      <div class="counterhedus">Settings:</div>
-      <div>
-        <button class="button" id="save-btn">Save Game</button>
+    <div class="settingcontainer">
+      <div class="shopcontainer">
+        <div class="counterhedus">Settings:</div>
+        <div>
+          <button class="button" id="save-btn">Save Game</button>
 
-        <button class="button" id="load-btn">Load Game</button>
-        <input type="text" id="save-code-input" placeholder="Enter save code" />
+          <button class="button" id="load-btn">Load Game</button>
+          <input
+            type="text"
+            id="save-code-input"
+            placeholder="Enter save code"
+            class="settingsave"
+          />
+        </div>
+        <div>
+          <label class="ticktest" for="interval">Tick Rate: </label>
+          <select class="tickselect" id="interval">
+            <option value="1">Faster</option>
+            <option value="10">Default</option>
+            <option value="100">Slower</option>
+            <option value="500">Slow</option>
+            <option value="1000">Slowest</option>
+          </select>
+        </div>
       </div>
+    </div>
+    <div>
+      <p class="verstext">Ultimatus v2</p>
     </div>
     <script>
       let cash = 0;
@@ -282,6 +346,7 @@
       const EmployeeIncomeDisplay = document.getElementById("employeeIncome");
       const StoreIncomeDisplay = document.getElementById("storeIncome");
       const saveCodeInput = document.getElementById("save-code");
+      const intervalInput = document.getElementById("interval");
 
       function updateButtonStates() {
         // Update button 1
@@ -449,11 +514,29 @@
       updateDisplay();
       updateButtonStates();
 
-      // Update income and cash every second
-      setInterval(() => {
-        cash += (income * multi) / 100;
-        updateDisplay();
-      }, 10);
+      let intervalId;
+
+      function startInterval() {
+        clearInterval(intervalId); // Clear any existing interval
+        const interval = Math.min(
+          Math.max(parseInt(intervalInput.value, 10) || 10, 10),
+          1000
+        ); // Ensure within 10-1000
+
+        // Calculate the divider based on the interval
+        const divider = 1000 / interval;
+
+        intervalId = setInterval(() => {
+          cash += (income * multi) / divider;
+          updateDisplay();
+        }, interval);
+      }
+
+      // Add event listener to update interval dynamically
+      intervalInput.addEventListener("change", startInterval);
+
+      // Start the interval initially
+      startInterval();
     </script>
   </body>
 </html>
