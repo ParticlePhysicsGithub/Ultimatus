@@ -5,5 +5,7 @@ A clicker game that can be run in your browser (ex. Live Server on VSC, file ind
 # Planned Ideas
 
 _Control of money update time_
+
 _Reset button_
+
 _Rebirth Currency_
