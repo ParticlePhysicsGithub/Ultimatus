@@ -3,540 +3,245 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Ultimatus</title>
+    <title>Clicker Game</title>
     <style>
       body {
+        font-family: Arial, sans-serif;
+        background: linear-gradient(to bottom, #74ebd5, #9face6);
         margin: 0;
         padding: 0;
-        font-family: "Roboto", sans-serif;
         display: flex;
-        flex-direction: column;
-        align-items: center;
         justify-content: center;
-        height: 100vh;
-        background: linear-gradient(135deg, #868686, #d1ccc0);
-        color: #333;
-      }
-
-      .gamecontainer {
-        background: rgba(255, 255, 255, 0.9);
-        border-radius: 15px;
-        padding: 25px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-        text-align: center;
-        width: 90%;
-        max-width: 450px;
-        margin-bottom: 20px;
-      }
-
-      .settingcontainer {
-        background: rgba(255, 255, 255, 0.9);
-        border-radius: 15px;
-        padding: 25px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-        text-align: center;
-        width: 90%;
-        max-width: 450px;
-        margin-bottom: 20px;
-        margin-right: 20px;
-        position: fixed;
-        right: 0;
-        bottom: 0;
-      }
-      .verstext {
-        margin-bottom: 20px;
-        margin-left: 20px;
-        position: fixed;
-        left: 0;
-        bottom: 0;
-        color: #333;
-        font-size: 24px;
-        font-weight: 1000;
-      }
-
-      .countercontainer {
-        margin-bottom: 20px;
-      }
-
-      .countermajor {
-        font-size: 40px;
-        font-weight: bold;
-        margin-bottom: 10px;
-        color: #5a4b40;
-        text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
-      }
-
-      .counterminor {
-        font-size: 18px;
-        font-weight: bolder;
-        color: #555;
-        margin-bottom: 5px;
-        text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.2);
-      }
-
-      .shopcontainer {
-        text-align: left;
-        margin-top: 20px;
-      }
-
-      .counterhedus {
-        font-size: 24px;
-        font-weight: bold;
-        margin-bottom: 15px;
-        color: #5a4b40;
-        text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.4);
-      }
-
-      .input-container {
-        margin: 15px;
-        font-size: 18px;
-        display: flex;
         align-items: center;
-        gap: 10px;
-      }
-
-      input[type="number"] {
-        width: 80px;
-        padding: 8px;
-        font-size: 16px;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        outline: none;
-        text-align: center;
-        background: #f7f7f7;
+        height: 100vh;
         color: #333;
-        font-family: "Roboto", sans-serif;
+        overflow: hidden;
+        position: relative;
       }
 
-      input[type="text"] {
-        width: 200px;
-        padding: 8px;
-        font-size: 16px;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        outline: none;
+      .game-container {
+        display: flex;
+        gap: 20px;
+        align-items: center;
+        z-index: 1;
+      }
+
+      .click-panel {
         text-align: center;
-        background: #f7f7f7;
-        color: #333;
-        font-family: "Roboto", sans-serif;
       }
 
-      .button {
-        display: inline-block;
-        background: #555;
+      .circle-button {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        background: #ff6f61;
         color: white;
-        padding: 12px 18px;
-        margin: 10px;
-        font-size: 16px;
-        font-weight: 500;
+        font-size: 1.5rem;
+        font-weight: bold;
         border: none;
-        border-radius: 8px;
         cursor: pointer;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        transition: background 0.3s ease, transform 0.2s ease;
+        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+        transition: transform 0.1s ease;
       }
 
-      .button:hover {
-        background: #777;
-        transform: scale(1.05);
+      .circle-button:active {
+        transform: scale(0.95);
       }
 
-      .settingsave {
-        margin-left: 10px;
+      .upgrades-panel {
+        background: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
       }
 
-      .tickselect {
-        margin-left: 10px;
+      .upgrade-button {
+        display: block;
+        margin: 10px 0;
+        padding: 10px;
+        background: #4caf50;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: background 0.3s;
+      }
+
+      .upgrade-button:disabled {
+        background: #bbb;
+        cursor: not-allowed;
+      }
+
+      .score-panel {
+        font-size: 3rem;
+        font-weight: bold;
+        color: #ff6f61;
+      }
+
+      .stats-panel {
+        color: #ff6f61;
+        font-size: 1.2rem;
         margin-top: 10px;
-        width: 100px;
-        padding: 8px;
-        font-size: 16px;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        outline: none;
-        text-align: center;
-        background: #f7f7f7;
-        color: #333;
-        font-family: "Roboto", sans-serif;
       }
 
-      /* Default disabled state */
-      .button:disabled {
-        background: #d4d4d4; /* Disabled look */
-        transform: scale(1); /* Default scale for disabled */
-        cursor: not-allowed; /* Cursor for disabled */
+      .settings-panel {
+        position: absolute;
+        bottom: 20px;
+        right: 20px;
+        background: #fff;
+        padding: 10px;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
       }
 
-      /* .unaffordable class styles only apply when the element is unaffordable */
-      .button.unaffordable {
-        background: #745d5d; /* Unaffordable look */
-        transform: scale(1); /* Scale for unaffordable look */
-        cursor: not-allowed; /* Cursor for unaffordable */
-      }
-
-      /* Ensure the unaffordable styles only apply when both disabled and unaffordable */
-      .button.unaffordable:disabled {
-        background: #745d5d; /* Unaffordable look when disabled */
-        transform: scale(1); /* Apply this scale */
-        cursor: not-allowed; /* Cursor for unaffordable */
-      }
-
-      .button:active {
-        background: #444;
-        transform: scale(0.95);
-      }
-
-      .buttonmajor {
-        background: #5a4b40;
+      .reset-button {
+        padding: 10px;
+        background: #f44336;
         color: white;
-        padding: 12px 18px;
-        margin: 10px;
-        font-size: 16px;
-        font-weight: 500;
         border: none;
-        border-radius: 8px;
+        border-radius: 5px;
+        font-size: 1rem;
         cursor: pointer;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        transition: background 0.3s ease, transform 0.2s ease;
+        transition: background 0.3s;
       }
 
-      .buttonmajor:hover {
-        background: #7c6b5e;
-        transform: scale(1.05);
+      .reset-button:hover {
+        background: #d32f2f;
       }
 
-      .buttonmajor:active {
-        background: #3f342e;
-        transform: scale(0.95);
-      }
-
-      @media (max-width: 600px) {
-        .gamecontainer {
-          width: 95%;
-        }
-
-        .button {
-          font-size: 14px;
-        }
-        .buttonmajor {
-          font-size: 14px;
-        }
+      .lava-lamp-circle {
+        position: absolute;
+        bottom: -50px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.7);
+        pointer-events: auto;
+        cursor: pointer;
       }
     </style>
   </head>
   <body>
-    <div class="gamecontainer">
-      <div class="countercontainer">
-        <div class="countermajor">$<span id="cash">0</span></div>
-        <div class="counterminor">
-          Income: $<span id="income">1</span>/s ($<span id="income_hrs"
-            >3600</span
-          >/hr)
-        </div>
-        <div class="counterminor">
-          Stores (MAX 100): <span id="stores">1</span>
-        </div>
-        <div class="counterminor">
-          Employees (MAX 2500): <span id="employees">1</span>
-        </div>
-        <div class="counterminor">Companies: <span id="companies">1</span></div>
-        <div class="counterminor">Multiplier: x<span id="multi">1</span></div>
-        <div class="counterminor">
-          Inflation Rate: x<span id="expo">1.1</span>
+    <div class="game-container">
+      <div>
+        <div class="score-panel" id="score">0</div>
+        <div class="stats-panel">
+          CPC: <span id="cpcDisplay">1</span> | CPS:
+          <span id="cpsDisplay">0</span>
         </div>
       </div>
-    </div>
-    <div class="gamecontainer">
-      <div class="shopcontainer">
-        <div class="counterhedus">Upgrades:</div>
-        <div class="input-container">
-          <label for="upgrade-quantity">Quantity:</label>
-          <input type="number" id="upgrade-quantity" value="1" min="1" />
-        </div>
-        <button class="button" id="income-upgrade--employee">
-          Hire an Employee (+<span id="employeeIncome">1</span> Income) ($<span
-            id="employeeCost"
-            >50</span
-          >)
+      <div class="click-panel">
+        <button class="circle-button" id="clickButton">Click Me</button>
+      </div>
+      <div class="upgrades-panel">
+        <h3>Upgrades</h3>
+        <button class="upgrade-button" id="cpcUpgrade" disabled>
+          Worker (+1 CPC) - Cost: 10
         </button>
-        <button class="button" id="income-upgrade--location">
-          Build a new Store (x<span id="storeIncome">1.25</span> Current Income)
-          ($<span id="locationCost">250</span>)
-        </button>
-        <button class="button" id="income-upgrade--company">
-          Start a new Company (-0.1 Inflation Rate if over 1) ($<span
-            id="companyCost"
-            >5000</span
-          >)
-        </button>
-        <button class="buttonmajor" id="rebirth-upg">
-          Rebirth ($<span id="rebirthCost">50000</span>)
+        <button class="upgrade-button" id="cpsUpgrade" disabled>
+          Computer (+1 CPS) - Cost: 50
         </button>
       </div>
     </div>
-    <div class="settingcontainer">
-      <div class="shopcontainer">
-        <div class="counterhedus">Settings:</div>
-        <div>
-          <button class="button" id="save-btn">Save Game</button>
+    <div class="settings-panel">
+      <button class="reset-button" id="resetButton">Reset Game</button>
+    </div>
 
-          <button class="button" id="load-btn">Load Game</button>
-          <input
-            type="text"
-            id="save-code-input"
-            placeholder="Enter save code"
-            class="settingsave"
-          />
-        </div>
-        <div>
-          <label class="ticktest" for="interval">Tick Rate: </label>
-          <select class="tickselect" id="interval">
-            <option value="1">Faster</option>
-            <option value="10">Default</option>
-            <option value="100">Slower</option>
-            <option value="500">Slow</option>
-            <option value="1000">Slowest</option>
-          </select>
-        </div>
-      </div>
-    </div>
-    <div>
-      <p class="verstext">Ultimatus v2</p>
-    </div>
     <script>
-      let cash = 0;
-      let income = 1;
-      let employees = 1;
-      let stores = 1;
-      let companies = 1;
-      let discount = 100; // No discount initially
-      let expoSet = 1.1;
-      let multi = 1;
-      let storeMax = 100;
-      let employMax = 2500;
+      let score = 0;
+      let cpc = 1;
+      let cps = 0;
+      let cpcUpgradeCost = 10;
+      let cpsUpgradeCost = 50;
 
-      let employeeCost = 50;
-      let locationCost = 250;
-      let companyCost = 5000;
-      let rebirthCost = 50000;
+      const scoreDisplay = document.getElementById("score");
+      const cpcDisplay = document.getElementById("cpcDisplay");
+      const cpsDisplay = document.getElementById("cpsDisplay");
+      const clickButton = document.getElementById("clickButton");
+      const cpcUpgradeButton = document.getElementById("cpcUpgrade");
+      const cpsUpgradeButton = document.getElementById("cpsUpgrade");
+      const resetButton = document.getElementById("resetButton");
 
-      const cashDisplay = document.getElementById("cash");
-      const incomeDisplay = document.getElementById("income");
-      const incomeHOURDisplay = document.getElementById("income_hrs");
-      const employeeDisplay = document.getElementById("employees");
-      const storesDisplay = document.getElementById("stores");
-      const companiesDisplay = document.getElementById("companies");
-      const incomeUpgradeEmployee = document.getElementById(
-        "income-upgrade--employee"
-      );
-      const incomeUpgradeLocation = document.getElementById(
-        "income-upgrade--location"
-      );
-      const incomeUpgradeCompany = document.getElementById(
-        "income-upgrade--company"
-      );
-      const RebirthAction = document.getElementById("rebirth-upg");
-      const upgradeQuantity = document.getElementById("upgrade-quantity");
-      const EmployeeCostDisplay = document.getElementById("employeeCost");
-      const StoreCostDisplay = document.getElementById("locationCost");
-      const CompanyCostDisplay = document.getElementById("companyCost");
-      const RebirthCostDisplay = document.getElementById("rebirthCost");
-      const MultiDisplay = document.getElementById("multi");
-      const ExpoDisplay = document.getElementById("expo");
-      const EmployeeIncomeDisplay = document.getElementById("employeeIncome");
-      const StoreIncomeDisplay = document.getElementById("storeIncome");
-      const saveCodeInput = document.getElementById("save-code");
-      const intervalInput = document.getElementById("interval");
-
-      function updateButtonStates() {
-        // Update button 1
-        if (cash < employeeCost) {
-          incomeUpgradeEmployee.classList.add("unaffordable");
-          incomeUpgradeEmployee.disabled = true;
-        } else {
-          incomeUpgradeEmployee.classList.remove("unaffordable");
-          incomeUpgradeEmployee.disabled = false;
-        }
-
-        // Update button 2
-        if (cash < companyCost) {
-          incomeUpgradeCompany.classList.add("unaffordable");
-          incomeUpgradeCompany.disabled = true;
-        } else {
-          incomeUpgradeCompany.classList.remove("unaffordable");
-          incomeUpgradeCompany.disabled = false;
-        }
-
-        // Update button 3
-        if (cash < locationCost) {
-          incomeUpgradeLocation.classList.add("unaffordable");
-          incomeUpgradeLocation.disabled = true;
-        } else {
-          incomeUpgradeLocation.classList.remove("unaffordable");
-          incomeUpgradeLocation.disabled = false;
-        }
+      function updateUI() {
+        scoreDisplay.textContent = `${score}`;
+        cpcDisplay.textContent = `${cpc}`;
+        cpsDisplay.textContent = `${cps}`;
+        cpcUpgradeButton.disabled = score < cpcUpgradeCost;
+        cpsUpgradeButton.disabled = score < cpsUpgradeCost;
       }
 
-      function updateDisplay() {
-        cashDisplay.textContent = cash.toFixed(2);
-        incomeDisplay.textContent = (income * multi).toFixed(2);
-        incomeHOURDisplay.textContent = (income * multi * 3600).toFixed(2);
-        employeeDisplay.textContent = employees;
-        storesDisplay.textContent = stores;
-        companiesDisplay.textContent = companies;
-        EmployeeCostDisplay.textContent = employeeCost.toFixed(2);
-        StoreCostDisplay.textContent = locationCost.toFixed(2);
-        CompanyCostDisplay.textContent = companyCost.toFixed(2);
-        RebirthCostDisplay.textContent = rebirthCost.toFixed(2);
-        MultiDisplay.textContent = multi.toFixed(2);
-        ExpoDisplay.textContent = expoSet.toFixed(2);
-        EmployeeIncomeDisplay.textContent = (income * multi).toFixed(2);
-        StoreIncomeDisplay.textContent = (income * multi * 1.25).toFixed(2);
+      clickButton.addEventListener("click", () => {
+        score += cpc;
+        updateUI();
+      });
 
-        updateButtonStates();
-      }
-
-      incomeUpgradeEmployee.addEventListener("click", () => {
-        if (cash >= employeeCost) {
-          cash -= employeeCost;
-          income += 1;
-          employees += 1;
-          employeeCost = Math.floor(employeeCost * 1.5);
-          updateDisplay();
+      cpcUpgradeButton.addEventListener("click", () => {
+        if (score >= cpcUpgradeCost) {
+          score -= cpcUpgradeCost;
+          cpc++;
+          cpcUpgradeCost = Math.floor(cpcUpgradeCost * 1.5);
+          cpcUpgradeButton.textContent = `Worker (+1 CPC) - Cost: ${cpcUpgradeCost}`;
+          updateUI();
         }
       });
 
-      incomeUpgradeLocation.addEventListener("click", () => {
-        if (cash >= locationCost) {
-          cash -= locationCost;
-          stores += 1;
-          locationCost = Math.floor(locationCost * 1.5);
-          updateDisplay();
+      cpsUpgradeButton.addEventListener("click", () => {
+        if (score >= cpsUpgradeCost) {
+          score -= cpsUpgradeCost;
+          cps++;
+          cpsUpgradeCost = Math.floor(cpsUpgradeCost * 1.5);
+          cpsUpgradeButton.textContent = `Computer (+1 CPS) - Cost: ${cpsUpgradeCost}`;
+          updateUI();
         }
       });
 
-      incomeUpgradeCompany.addEventListener("click", () => {
-        if (cash >= companyCost) {
-          cash -= companyCost;
-          companies += 1;
-          discount = expoSet;
-          companyCost = Math.floor(companyCost * 1.5);
-          updateDisplay();
-        }
+      resetButton.addEventListener("click", () => {
+        score = 0;
+        cpc = 1;
+        cps = 0;
+        cpcUpgradeCost = 10;
+        cpsUpgradeCost = 50;
+        cpcUpgradeButton.textContent = `Worker (+1 CPC) - Cost: ${cpcUpgradeCost}`;
+        cpsUpgradeButton.textContent = `Computer (+1 CPS) - Cost: ${cpsUpgradeCost}`;
+        updateUI();
       });
 
-      RebirthAction.addEventListener("click", () => {
-        if (cash >= rebirthCost) {
-          cash -= rebirthCost;
-          income = 1;
-          employees = 1;
-          stores = 1;
-          companies = 1;
-          multi = 1;
-          expoSet = 1.1;
-          employeeCost = 50;
-          locationCost = 250;
-          companyCost = 5000;
-          rebirthCost = 50000;
-          updateDisplay();
-        }
-      });
+      setInterval(() => {
+        score += cps;
+        updateUI();
+      }, 1000);
 
-      document.getElementById("save-btn").addEventListener("click", () => {
-        const gameState = {
-          cash,
-          income,
-          employees,
-          stores,
-          companies,
-          multi,
-          expoSet,
-          employeeCost,
-          locationCost,
-          companyCost,
-          rebirthCost,
-        };
+      function spawnLavaLampCircle() {
+        const circle = document.createElement("div");
+        const size = Math.random() * 30 + 20;
+        circle.classList.add("lava-lamp-circle");
+        circle.style.width = `${size}px`;
+        circle.style.height = `${size}px`;
+        circle.style.left = `${Math.random() * window.innerWidth}px`;
+        circle.style.bottom = `-50px`;
+        document.body.appendChild(circle);
 
-        // Obfuscated version of JSON.stringify with symbols and substitutions
-        const saveCode = JSON.stringify(gameState)
-          .replace(/"/g, "#")
-          .replace(/:/g, "&")
-          .replace(/,/g, "%")
-          .replace(/{/g, "(")
-          .replace(/}/g, ")")
-          .replace(/\[/g, "{")
-          .replace(/\]/g, "}");
+        const animationSpeed = Math.random() * 1 + 0.5; // Random speed between 0.5 and 1.5
 
-        // Copy save code to clipboard
-        navigator.clipboard.writeText(saveCode).then(() => {
-          alert("Game Saved! The save code has been copied to your clipboard.");
-        });
-      });
-
-      document.getElementById("load-btn").addEventListener("click", () => {
-        const saveCodeInput = document
-          .getElementById("save-code-input")
-          .value.trim();
-
-        if (saveCodeInput) {
-          try {
-            const gameState = JSON.parse(
-              saveCodeInput
-                .replace(/#/g, '"')
-                .replace(/&/g, ":")
-                .replace(/%/g, ",")
-                .replace(/\(/g, "{")
-                .replace(/\)/g, "}")
-            ); // Decode obfuscated save code
-
-            cash = gameState.cash;
-            income = gameState.income;
-            employees = gameState.employees;
-            stores = gameState.stores;
-            companies = gameState.companies;
-            multi = gameState.multi;
-            expoSet = gameState.expoSet;
-            employeeCost = gameState.employeeCost;
-            locationCost = gameState.locationCost;
-            companyCost = gameState.companyCost;
-            rebirthCost = gameState.rebirthCost;
-
-            updateDisplay(); // Update UI
-            alert("Game Loaded!");
-          } catch (e) {
-            alert("Invalid Save Code. Please try again.");
+        const riseInterval = setInterval(() => {
+          const bottom = parseFloat(circle.style.bottom);
+          if (bottom > window.innerHeight) {
+            circle.remove();
+            clearInterval(riseInterval);
+          } else {
+            circle.style.bottom = `${bottom + animationSpeed}px`;
           }
-        } else {
-          alert("Please enter a valid save code.");
-        }
-      });
+        }, 20);
 
-      updateDisplay();
-      updateButtonStates();
-
-      let intervalId;
-
-      function startInterval() {
-        clearInterval(intervalId); // Clear any existing interval
-        const interval = Math.min(
-          Math.max(parseInt(intervalInput.value, 10) || 10, 10),
-          1000
-        ); // Ensure within 10-1000
-
-        // Calculate the divider based on the interval
-        const divider = 1000 / interval;
-
-        intervalId = setInterval(() => {
-          cash += (income * multi) / divider;
-          updateDisplay();
-        }, interval);
+        circle.addEventListener("click", () => {
+          score += cpc * 2;
+          updateUI();
+          circle.remove();
+          clearInterval(riseInterval);
+        });
       }
 
-      // Add event listener to update interval dynamically
-      intervalInput.addEventListener("change", startInterval);
-
-      // Start the interval initially
-      startInterval();
+      setInterval(spawnLavaLampCircle, 500); // Spawn faster
+      updateUI();
     </script>
   </body>
 </html>
