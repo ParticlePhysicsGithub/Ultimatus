@@ -17,3 +17,5 @@ A clicker game that can be run in your browser (ex. Live Server on VSC, file ind
 -_Marketing (Free Employees)_
 
 -_Shares (Avail, Invested, Redeem)_
+
+-_Collapsible Settings Menu_
