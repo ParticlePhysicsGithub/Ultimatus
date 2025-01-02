@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Clicker Game</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
       body {
         font-family: Arial, sans-serif;
@@ -40,6 +41,7 @@
         font-weight: bold;
         border: none;
         cursor: pointer;
+        margin-right: 20px;
         box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
         transition: transform 0.1s ease;
       }
@@ -85,10 +87,31 @@
         margin-top: 10px;
       }
 
+      .stats-panel2 {
+        color: #333;
+        font-size: 1.2rem;
+        margin-top: 10px;
+      }
+
       .settings-panel {
         position: absolute;
         bottom: 20px;
         right: 20px;
+        background: #fff;
+        padding: 10px;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      }
+      .stocks-panel {
+        position: absolute;
+        bottom: 20px;
+        left: 20px;
+        background: #fff;
+        padding: 10px;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      }
+      .selectpanel {
         background: #fff;
         padding: 10px;
         border-radius: 10px;
@@ -118,6 +141,11 @@
         pointer-events: auto;
         cursor: pointer;
       }
+
+      .quantity-selector {
+        margin-bottom: 10px;
+        font-size: 1rem;
+      }
     </style>
   </head>
   <body>
@@ -126,7 +154,10 @@
         <div class="score-panel" id="score">0</div>
         <div class="stats-panel">
           CPC: <span id="cpcDisplay">1</span> | CPS:
-          <span id="cpsDisplay">0</span>
+          <span id="cpsDisplay">0</span> | Multiplier: x<span id="multDisplay"
+            >1</span
+          >
+          | Rods: <span id="rodDisplay">0</span>
         </div>
       </div>
       <div class="click-panel">
@@ -134,12 +165,43 @@
       </div>
       <div class="upgrades-panel">
         <h3>Upgrades</h3>
+        <label for="quantity" class="quantity-selector"
+          >Quantity:
+          <select class="selectpanel" id="quantity">
+            <option value="1">1</option>
+            <option value="10">10</option>
+            <option value="100">100</option>
+            <option value="1000">1000</option>
+          </select>
+        </label>
         <button class="upgrade-button" id="cpcUpgrade" disabled>
-          Worker (+1 CPC) - Cost: 10
+          Worker - Cost: <span id="cpcCost">10</span> | Effect:
+          <span id="cpcEffect">+1 CPC</span>
+        </button>
+        <button class="upgrade-button" id="AVUpgrade" disabled>
+          Share Expansion: <span id="AVCost">10000</span> | Effect:
+          <span id="AVEffect">+1 Open Shares</span>
         </button>
         <button class="upgrade-button" id="cpsUpgrade" disabled>
-          Computer (+1 CPS) - Cost: 50
+          Computer - Cost: <span id="cpsCost">50</span> | Effect:
+          <span id="cpsEffect">+1 CPS</span>
         </button>
+        <button class="upgrade-button" id="rebirth" disabled>
+          Rebirth - Cost: <span id="rebirthCost">5000</span> | Effect: +1
+          Multiplier, +<span id="rodGive">1</span> Rods
+        </button>
+      </div>
+    </div>
+    <div class="stocks-panel">
+      <h3>Shares</h3>
+      <div class="stats-panel2">
+        Available Shares: <span id="availShares">0</span> Invested:
+        <span id="investedScore">0</span> Share Price:
+        <span id="sharePrice">100</span>
+        <button class="upgrade-button" id="redeem">Redeem Funds</button>
+        <div><span id="countdown-timer">5</span>s until update</div>
+
+        <canvas id="sharePriceChart" width="300" height="150"></canvas>
       </div>
     </div>
     <div class="settings-panel">
@@ -152,44 +214,144 @@
       let cps = 0;
       let cpcUpgradeCost = 10;
       let cpsUpgradeCost = 50;
+      let rebirthActionCost = 5000;
+      let multi = 1;
+      let quantity = 1;
+      let rods = 0;
+      let sharesOpen = 0;
+      let scoreInvested = 0;
+      let sharePrice = 100;
+
+      let avcost = 200;
+
+      const ASDisplay = document.getElementById("availShares");
+      const INVDisplay = document.getElementById("investedScore");
+      const SPDisplay = document.getElementById("sharePrice");
 
       const scoreDisplay = document.getElementById("score");
       const cpcDisplay = document.getElementById("cpcDisplay");
       const cpsDisplay = document.getElementById("cpsDisplay");
+      const rodsDisplay = document.getElementById("rodDisplay");
+      const multiDisplay = document.getElementById("multDisplay");
+
       const clickButton = document.getElementById("clickButton");
+
       const cpcUpgradeButton = document.getElementById("cpcUpgrade");
       const cpsUpgradeButton = document.getElementById("cpsUpgrade");
+      const rebirthUpgradeButton = document.getElementById("rebirth");
+      const AVUpgradeButton = document.getElementById("AVUpgrade");
+
       const resetButton = document.getElementById("resetButton");
+      const quantitySelector = document.getElementById("quantity");
+
+      const cpcCostSpan = document.getElementById("cpcCost");
+      const cpsCostSpan = document.getElementById("cpsCost");
+      const AVCostSpan = document.getElementById("AVCost");
+      const rebirthCostSpan = document.getElementById("rebirthCost");
+
+      const cpcEffectSpan = document.getElementById("cpcEffect");
+      const cpsEffectSpan = document.getElementById("cpsEffect");
+      const AVEffectSpan = document.getElementById("AVEffect");
+      const RedeemFundsAction = document.getElementById("redeem");
+
+      const rebirthRodDelivery = document.getElementById("rodGive");
+
+      quantitySelector.addEventListener("change", (e) => {
+        quantity = parseInt(e.target.value, 10);
+        updateUpgradeDisplay();
+      });
+
+      function updateUpgradeDisplay() {
+        cpcCostSpan.textContent = cpcUpgradeCost * quantity;
+        cpsCostSpan.textContent = cpsUpgradeCost * quantity;
+        AVCostSpan.textContent = avcost * quantity;
+        cpcEffectSpan.textContent = `+${quantity} CPC`;
+        AVEffectSpan.textContent = `+${quantity} Open Shares`;
+        cpsEffectSpan.textContent = `+${quantity} CPS`;
+        rebirthCostSpan.textContent = rebirthActionCost;
+      }
 
       function updateUI() {
         scoreDisplay.textContent = `${score}`;
         cpcDisplay.textContent = `${cpc}`;
         cpsDisplay.textContent = `${cps}`;
-        cpcUpgradeButton.disabled = score < cpcUpgradeCost;
-        cpsUpgradeButton.disabled = score < cpsUpgradeCost;
+        rodsDisplay.textContent = `${rods}`;
+        ASDisplay.textContent = `${sharesOpen}`;
+        INVDisplay.textContent = `${scoreInvested}`;
+        SPDisplay.textContent = `${sharePrice}`;
+        multiDisplay.textContent = `${multi}`;
+        cpcUpgradeButton.disabled = score < cpcUpgradeCost * quantity;
+        cpsUpgradeButton.disabled = score < cpsUpgradeCost * quantity;
+        rebirthUpgradeButton.disabled = score < rebirthActionCost;
+        AVUpgradeButton.disabled = score < avcost * quantity;
+        if (score > rebirthActionCost) {
+          rebirthRodDelivery.textContent = (
+            (score - rebirthActionCost) / rebirthActionCost +
+            1
+          ).toFixed(0);
+        } else {
+          rebirthRodDelivery.textContent = 1;
+        }
       }
 
       clickButton.addEventListener("click", () => {
-        score += cpc;
+        score += cpc * multi;
         updateUI();
       });
 
       cpcUpgradeButton.addEventListener("click", () => {
-        if (score >= cpcUpgradeCost) {
-          score -= cpcUpgradeCost;
-          cpc++;
+        const totalCost = cpcUpgradeCost * quantity;
+        if (score >= totalCost) {
+          score -= totalCost;
+          cpc += quantity;
           cpcUpgradeCost = Math.floor(cpcUpgradeCost * 1.5);
-          cpcUpgradeButton.textContent = `Worker (+1 CPC) - Cost: ${cpcUpgradeCost}`;
+          updateUpgradeDisplay();
+          updateUI();
+        }
+      });
+      RedeemFundsAction.addEventListener("click", () => {
+        score += scoreInvested;
+        scoreInvested = 0;
+      });
+      AVUpgradeButton.addEventListener("click", () => {
+        const totalCost = avcost * quantity;
+        if (score >= totalCost) {
+          score -= totalCost;
+          sharesOpen += quantity;
+
+          updateUpgradeDisplay();
+          updateUI();
+        }
+      });
+
+      rebirthUpgradeButton.addEventListener("click", () => {
+        const totalCost = rebirthActionCost;
+        if (score >= totalCost) {
+          score -= totalCost;
+          rods += ((score - rebirthActionCost) / rebirthActionCost + 1).toFixed(
+            0
+          );
+          multi += 1;
+          rebirthActionCost = Math.floor(rebirthActionCost * 1.5);
+
+          score = 0;
+          cpc = 1;
+          cps = 0;
+          cpcUpgradeCost = 10;
+          cpsUpgradeCost = 50;
+
+          updateUpgradeDisplay();
           updateUI();
         }
       });
 
       cpsUpgradeButton.addEventListener("click", () => {
-        if (score >= cpsUpgradeCost) {
-          score -= cpsUpgradeCost;
-          cps++;
+        const totalCost = cpsUpgradeCost * quantity;
+        if (score >= totalCost) {
+          score -= totalCost;
+          cps += quantity;
           cpsUpgradeCost = Math.floor(cpsUpgradeCost * 1.5);
-          cpsUpgradeButton.textContent = `Computer (+1 CPS) - Cost: ${cpsUpgradeCost}`;
+          updateUpgradeDisplay();
           updateUI();
         }
       });
@@ -200,15 +362,105 @@
         cps = 0;
         cpcUpgradeCost = 10;
         cpsUpgradeCost = 50;
-        cpcUpgradeButton.textContent = `Worker (+1 CPC) - Cost: ${cpcUpgradeCost}`;
-        cpsUpgradeButton.textContent = `Computer (+1 CPS) - Cost: ${cpsUpgradeCost}`;
+        quantity = 1;
+        quantitySelector.value = "1";
+        updateUpgradeDisplay();
         updateUI();
       });
 
       setInterval(() => {
-        score += cps;
+        score += cps * multi;
+
         updateUI();
       }, 1000);
+
+      setInterval(() => {
+        if (sharesOpen > 0) {
+          sharesOpen -= 1;
+          scoreInvested += sharePrice;
+        }
+      }, 100);
+
+      let countdown = 3;
+      const timerElement = document.getElementById("countdown-timer");
+
+      function updateCountdown() {
+        timerElement.textContent = countdown;
+        countdown--;
+        if (countdown < 0) {
+          updateStocks();
+          countdown = 3; // Reset countdown
+        }
+      }
+
+      // Update every second
+      setInterval(updateCountdown, 1000);
+
+      const sharePriceHistory = [];
+      const maxHistoryPoints = 20;
+
+      // Create the chart instance
+      const ctx = document.getElementById("sharePriceChart").getContext("2d");
+      const sharePriceChart = new Chart(ctx, {
+        type: "line",
+        data: {
+          labels: [], // Time labels
+          datasets: [
+            {
+              label: "Share Price",
+              data: [],
+              borderColor: "rgba(255, 99, 132, 1)",
+              backgroundColor: "rgba(255, 99, 132, 0.2)",
+              fill: true,
+              tension: 0.3,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          scales: {
+            x: {
+              title: {
+                display: true,
+                text: "Time",
+              },
+            },
+            y: {
+              title: {
+                display: true,
+                text: "Price",
+              },
+              min: 0,
+              max: 1000,
+            },
+          },
+        },
+      });
+
+      function updateStocks() {
+        const randomChange = Math.floor(Math.random() * 501) - 250;
+        sharePrice = Math.max(1, Math.min(1000, sharePrice + randomChange));
+
+        // Update share price history
+        const now = new Date().toLocaleTimeString(); // Current time label
+        sharePriceHistory.push({ time: now, price: sharePrice });
+
+        // Limit history points to maxHistoryPoints
+        if (sharePriceHistory.length > maxHistoryPoints) {
+          sharePriceHistory.shift();
+        }
+
+        // Update chart data
+        sharePriceChart.data.labels = sharePriceHistory.map(
+          (point) => point.time
+        );
+        sharePriceChart.data.datasets[0].data = sharePriceHistory.map(
+          (point) => point.price
+        );
+        sharePriceChart.update();
+
+        updateUI();
+      }
 
       function spawnLavaLampCircle() {
         const circle = document.createElement("div");
@@ -220,7 +472,7 @@
         circle.style.bottom = `-50px`;
         document.body.appendChild(circle);
 
-        const animationSpeed = Math.random() * 1 + 0.5; // Random speed between 0.5 and 1.5
+        const animationSpeed = Math.random() * 1 + 1; // Random speed between 0.5 and 1.5
 
         const riseInterval = setInterval(() => {
           const bottom = parseFloat(circle.style.bottom);
@@ -233,7 +485,7 @@
         }, 20);
 
         circle.addEventListener("click", () => {
-          score += cpc * 2;
+          score += cpc * 2 * multi;
           updateUI();
           circle.remove();
           clearInterval(riseInterval);
@@ -241,6 +493,7 @@
       }
 
       setInterval(spawnLavaLampCircle, 500); // Spawn faster
+      updateUpgradeDisplay();
       updateUI();
     </script>
   </body>
