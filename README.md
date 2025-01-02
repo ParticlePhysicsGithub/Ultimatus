@@ -4,11 +4,13 @@ A clicker game that can be run in your browser (ex. Live Server on VSC, file ind
 
 ## Planned Ideas
 
--_Rebirth Currency_
-
 -_Overclocking (Overtime)_
 
 -_Marketing (Free Employees)_
 
--_Shares (Avail, Invested, Redeem)_
+-_Rods Shop_
+
+-_More Settings_
+
+-_Quota (Either 10^9 or 10^12)_
 
